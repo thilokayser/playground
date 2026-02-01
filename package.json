@@ -1,0 +1,15 @@
+{
+  "name": "dwc-commander-biohazard",
+  "version": "1.0.0",
+  "description": "DWC Commander - Biohazard Edition",
+  "main": "main.js",
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^28.2.0"
+  }
+}
