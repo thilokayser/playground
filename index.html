@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DWC Commander - Biohazard Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0%, #050608 55%, #020203 100%);
+      color: #e5f9ff;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass {
+      background: rgba(10, 17, 29, 0.6);
+      border: 1px solid rgba(45, 212, 191, 0.25);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(18px);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.35);
+    }
+    .glow-gold {
+      box-shadow: 0 0 18px rgba(250, 204, 21, 0.35);
+    }
+    .accent-cyan {
+      color: #22d3ee;
+    }
+    .accent-gold {
+      color: #facc15;
+    }
+    .badge {
+      border: 1px solid rgba(250, 204, 21, 0.5);
+      background: rgba(250, 204, 21, 0.1);
+    }
+    input, select, textarea {
+      background: rgba(8, 14, 24, 0.8);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      color: #e5f9ff;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #facc15;
+      box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-6xl mx-auto px-6 py-10">
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-semibold tracking-tight accent-cyan">DWC Commander</h1>
+        <p class="text-sm text-slate-300">Biohazard Edition · Hydroponisches DWC Management</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <span class="badge px-4 py-2 rounded-full text-xs uppercase tracking-[0.2em] mono">Dark Ops</span>
+        <span class="badge px-4 py-2 rounded-full text-xs uppercase tracking-[0.2em] mono">Neon Protocol</span>
+      </div>
+    </header>
+
+    <section class="mt-10 grid lg:grid-cols-2 gap-6">
+      <div class="glass rounded-2xl p-6 glow-cyan">
+        <h2 class="text-xl font-semibold accent-gold">Setup</h2>
+        <p class="text-sm text-slate-300">Startdatum, Pflanzen und Ernteplanung.</p>
+        <form id="setupForm" class="mt-4 space-y-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Startdatum</label>
+              <input type="date" id="startDate" class="mt-2 w-full rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Ernte in Tagen</label>
+              <input type="number" id="harvestDays" class="mt-2 w-full rounded-lg px-3 py-2 mono" value="56" min="1" />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass rounded-xl p-4">
+              <h3 class="text-sm font-semibold accent-cyan">Pflanze 1</h3>
+              <input id="plant1Name" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Name" />
+              <input id="plant1Bucket" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Eimer" />
+              <input id="plant1Strain" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Strain" />
+            </div>
+            <div class="glass rounded-xl p-4">
+              <h3 class="text-sm font-semibold accent-cyan">Pflanze 2</h3>
+              <input id="plant2Name" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Name" />
+              <input id="plant2Bucket" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Eimer" />
+              <input id="plant2Strain" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Strain" />
+            </div>
+          </div>
+          <button type="submit" class="mt-2 w-full rounded-lg bg-cyan-400/20 border border-cyan-300 text-cyan-200 py-2 uppercase tracking-[0.2em] text-xs hover:bg-cyan-400/30">Setup speichern</button>
+        </form>
+      </div>
+
+      <div class="glass rounded-2xl p-6 glow-gold">
+        <h2 class="text-xl font-semibold accent-gold">Logging</h2>
+        <p class="text-sm text-slate-300">Protokolliere pH, EC, Temperaturen und Root Health.</p>
+        <form id="logForm" class="mt-4 space-y-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass rounded-xl p-4">
+              <h3 class="text-sm font-semibold accent-cyan">Pflanze 1</h3>
+              <div class="grid grid-cols-3 gap-3 mt-2">
+                <input id="p1Ph" type="number" step="0.01" placeholder="pH" class="rounded-lg px-3 py-2 mono" />
+                <input id="p1Ec" type="number" step="0.01" placeholder="EC" class="rounded-lg px-3 py-2 mono" />
+                <input id="p1WaterTemp" type="number" step="0.1" placeholder="Wassertemp" class="rounded-lg px-3 py-2 mono" />
+              </div>
+              <select id="p1Root" class="mt-3 w-full rounded-lg px-3 py-2">
+                <option value="Good">Root Health: Good</option>
+                <option value="Watch">Root Health: Watch</option>
+                <option value="Critical">Root Health: Critical</option>
+              </select>
+            </div>
+            <div class="glass rounded-xl p-4">
+              <h3 class="text-sm font-semibold accent-cyan">Pflanze 2</h3>
+              <div class="grid grid-cols-3 gap-3 mt-2">
+                <input id="p2Ph" type="number" step="0.01" placeholder="pH" class="rounded-lg px-3 py-2 mono" />
+                <input id="p2Ec" type="number" step="0.01" placeholder="EC" class="rounded-lg px-3 py-2 mono" />
+                <input id="p2WaterTemp" type="number" step="0.1" placeholder="Wassertemp" class="rounded-lg px-3 py-2 mono" />
+              </div>
+              <select id="p2Root" class="mt-3 w-full rounded-lg px-3 py-2">
+                <option value="Good">Root Health: Good</option>
+                <option value="Watch">Root Health: Watch</option>
+                <option value="Critical">Root Health: Critical</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-4 gap-4">
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Lufttemp (°C)</label>
+              <input id="airTemp" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">RLF (%)</label>
+              <input id="humidity" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">H2O2 Refill</label>
+              <div class="mt-3 flex items-center gap-2">
+                <input id="h2o2Refill" type="checkbox" class="h-4 w-4" />
+                <span class="text-sm text-slate-300">Refill durchgeführt</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Notizen</label>
+              <input id="notes" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="z. B. Wasserwechsel" />
+            </div>
+          </div>
+          <button type="submit" class="mt-2 w-full rounded-lg bg-yellow-400/20 border border-yellow-200 text-yellow-200 py-2 uppercase tracking-[0.2em] text-xs hover:bg-yellow-400/30">Log hinzufügen</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="mt-10 grid lg:grid-cols-2 gap-6">
+      <div class="glass rounded-2xl p-6 glow-cyan">
+        <h2 class="text-xl font-semibold accent-gold">Dashboard</h2>
+        <div class="mt-4 grid md:grid-cols-2 gap-4">
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">VPD</p>
+            <p id="vpdValue" class="text-2xl mono accent-cyan">-- kPa</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Tage seit H2O2</p>
+            <p id="daysSinceH2o2" class="text-2xl mono accent-cyan">--</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Ernte Countdown</p>
+            <p id="harvestCountdown" class="text-2xl mono accent-gold">--</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Drift Analyse</p>
+            <p id="driftStatus" class="text-sm mono text-slate-200">--</p>
+          </div>
+        </div>
+        <div class="mt-6">
+          <canvas id="ecChart" height="180"></canvas>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 glow-gold">
+        <h2 class="text-xl font-semibold accent-gold">Rechner</h2>
+        <div class="mt-4 space-y-6">
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-cyan">H2O2 Dosierung</h3>
+            <div class="grid grid-cols-3 gap-3 mt-3">
+              <input id="h2o2Volume" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Volumen (L)" />
+              <input id="h2o2PerLiter" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="ml/L" value="2" />
+              <input id="h2o2Result" type="text" class="rounded-lg px-3 py-2 mono" placeholder="Gesamt ml" readonly />
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-cyan">Hesi Dünger</h3>
+            <div class="grid grid-cols-3 gap-3 mt-3">
+              <input id="hesiVolume" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Volumen (L)" />
+              <input id="hesiGrow" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Grow ml/L" value="2.5" />
+              <input id="hesiGrowResult" type="text" class="rounded-lg px-3 py-2 mono" placeholder="Grow Gesamt" readonly />
+            </div>
+            <div class="grid grid-cols-3 gap-3 mt-3">
+              <input id="hesiBloom" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Bloom ml/L" value="5" />
+              <input id="hesiBoost" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Boost ml/L" value="1" />
+              <input id="hesiBloomResult" type="text" class="rounded-lg px-3 py-2 mono" placeholder="Bloom/Boost Gesamt" readonly />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10">
+      <div class="glass rounded-2xl p-6">
+        <h2 class="text-xl font-semibold accent-gold">Letzte Logs</h2>
+        <div id="logList" class="mt-4 space-y-3"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const state = {
+      data: null,
+      chart: null
+    };
+
+    const elements = {
+      startDate: document.getElementById('startDate'),
+      harvestDays: document.getElementById('harvestDays'),
+      plant1Name: document.getElementById('plant1Name'),
+      plant1Bucket: document.getElementById('plant1Bucket'),
+      plant1Strain: document.getElementById('plant1Strain'),
+      plant2Name: document.getElementById('plant2Name'),
+      plant2Bucket: document.getElementById('plant2Bucket'),
+      plant2Strain: document.getElementById('plant2Strain'),
+      p1Ph: document.getElementById('p1Ph'),
+      p1Ec: document.getElementById('p1Ec'),
+      p1WaterTemp: document.getElementById('p1WaterTemp'),
+      p1Root: document.getElementById('p1Root'),
+      p2Ph: document.getElementById('p2Ph'),
+      p2Ec: document.getElementById('p2Ec'),
+      p2WaterTemp: document.getElementById('p2WaterTemp'),
+      p2Root: document.getElementById('p2Root'),
+      airTemp: document.getElementById('airTemp'),
+      humidity: document.getElementById('humidity'),
+      h2o2Refill: document.getElementById('h2o2Refill'),
+      notes: document.getElementById('notes'),
+      vpdValue: document.getElementById('vpdValue'),
+      daysSinceH2o2: document.getElementById('daysSinceH2o2'),
+      harvestCountdown: document.getElementById('harvestCountdown'),
+      driftStatus: document.getElementById('driftStatus'),
+      logList: document.getElementById('logList'),
+      h2o2Volume: document.getElementById('h2o2Volume'),
+      h2o2PerLiter: document.getElementById('h2o2PerLiter'),
+      h2o2Result: document.getElementById('h2o2Result'),
+      hesiVolume: document.getElementById('hesiVolume'),
+      hesiGrow: document.getElementById('hesiGrow'),
+      hesiGrowResult: document.getElementById('hesiGrowResult'),
+      hesiBloom: document.getElementById('hesiBloom'),
+      hesiBoost: document.getElementById('hesiBoost'),
+      hesiBloomResult: document.getElementById('hesiBloomResult')
+    };
+
+    const setupForm = document.getElementById('setupForm');
+    const logForm = document.getElementById('logForm');
+
+    function formatDate(dateString) {
+      if (!dateString) return '--';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function daysBetween(date1, date2) {
+      const diff = date2.getTime() - date1.getTime();
+      return Math.floor(diff / (1000 * 60 * 60 * 24));
+    }
+
+    function calculateVpd(tempC, rh) {
+      if (tempC === null || rh === null) return null;
+      const saturation = 0.6108 * Math.exp((17.27 * tempC) / (tempC + 237.3));
+      const vpd = (1 - rh / 100) * saturation;
+      return vpd;
+    }
+
+    function updateSetupFields() {
+      const { setup } = state.data;
+      elements.startDate.value = setup.startDate || '';
+      elements.harvestDays.value = setup.harvestDays || 56;
+      elements.plant1Name.value = setup.plants[0]?.name || '';
+      elements.plant1Bucket.value = setup.plants[0]?.bucket || '';
+      elements.plant1Strain.value = setup.plants[0]?.strain || '';
+      elements.plant2Name.value = setup.plants[1]?.name || '';
+      elements.plant2Bucket.value = setup.plants[1]?.bucket || '';
+      elements.plant2Strain.value = setup.plants[1]?.strain || '';
+    }
+
+    function updateDashboard() {
+      const logs = state.data.logs;
+      const latestLog = logs[0];
+      if (latestLog) {
+        const vpd = calculateVpd(latestLog.airTemp, latestLog.humidity);
+        elements.vpdValue.textContent = vpd ? `${vpd.toFixed(2)} kPa` : '-- kPa';
+      } else {
+        elements.vpdValue.textContent = '-- kPa';
+      }
+
+      const h2o2Log = logs.find((log) => log.h2o2Refill);
+      if (h2o2Log) {
+        const days = daysBetween(new Date(h2o2Log.timestamp), new Date());
+        elements.daysSinceH2o2.textContent = `${days} Tage`;
+      } else {
+        elements.daysSinceH2o2.textContent = 'Kein Eintrag';
+      }
+
+      const startDate = state.data.setup.startDate ? new Date(state.data.setup.startDate) : null;
+      if (startDate) {
+        const harvestDays = Number(state.data.setup.harvestDays) || 56;
+        const harvestDate = new Date(startDate);
+        harvestDate.setDate(harvestDate.getDate() + harvestDays);
+        const daysLeft = daysBetween(new Date(), harvestDate);
+        elements.harvestCountdown.textContent = `${daysLeft} Tage (${formatDate(harvestDate.toISOString())})`;
+      } else {
+        elements.harvestCountdown.textContent = '--';
+      }
+
+      const driftMessage = getDriftStatus(logs);
+      elements.driftStatus.textContent = driftMessage;
+    }
+
+    function getDriftStatus(logs) {
+      if (logs.length < 2) {
+        return 'Nicht genug Daten für Drift-Analyse.';
+      }
+      const [latest, previous] = logs;
+      const ecUp = latest.plants.some((plant, index) => {
+        const prev = previous.plants[index];
+        return plant.ec !== null && prev.ec !== null && plant.ec > prev.ec;
+      });
+      const phDown = latest.plants.some((plant, index) => {
+        const prev = previous.plants[index];
+        return plant.ph !== null && prev.ph !== null && plant.ph < prev.ph;
+      });
+      if (ecUp && phDown) {
+        return 'Warnung: EC steigt und pH fällt — mögliches Nährstoffbrand-Risiko.';
+      }
+      return 'Stabil: Kein kritischer Drift erkannt.';
+    }
+
+    function updateChart() {
+      const ctx = document.getElementById('ecChart').getContext('2d');
+      const labels = state.data.logs.map((log) => new Date(log.timestamp).toLocaleDateString('de-DE')).reverse();
+      const plant1Ec = state.data.logs.map((log) => log.plants[0]?.ec ?? null).reverse();
+      const plant2Ec = state.data.logs.map((log) => log.plants[1]?.ec ?? null).reverse();
+
+      if (state.chart) {
+        state.chart.destroy();
+      }
+
+      state.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: state.data.setup.plants[0]?.name || 'Pflanze 1',
+              data: plant1Ec,
+              borderColor: '#22d3ee',
+              backgroundColor: 'rgba(34, 211, 238, 0.2)',
+              tension: 0.3
+            },
+            {
+              label: state.data.setup.plants[1]?.name || 'Pflanze 2',
+              data: plant2Ec,
+              borderColor: '#facc15',
+              backgroundColor: 'rgba(250, 204, 21, 0.2)',
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#e5f9ff'
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+            },
+            y: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+            }
+          }
+        }
+      });
+    }
+
+    function updateLogsList() {
+      elements.logList.innerHTML = '';
+      state.data.logs.slice(0, 6).forEach((log) => {
+        const card = document.createElement('div');
+        card.className = 'glass rounded-xl p-4 flex flex-col gap-2';
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="mono text-sm">${new Date(log.timestamp).toLocaleString('de-DE')}</span>
+            <span class="text-xs uppercase tracking-[0.2em] accent-cyan">${log.h2o2Refill ? 'H2O2 Refill' : 'Standard'}</span>
+          </div>
+          <div class="grid md:grid-cols-2 gap-3 text-sm text-slate-200">
+            <div>
+              <p class="accent-gold mono">${log.plants[0].name}</p>
+              <p>pH ${log.plants[0].ph ?? '--'} · EC ${log.plants[0].ec ?? '--'} · Wassertemp ${log.plants[0].waterTemp ?? '--'}°C</p>
+              <p>Root Health: ${log.plants[0].rootHealth}</p>
+            </div>
+            <div>
+              <p class="accent-gold mono">${log.plants[1].name}</p>
+              <p>pH ${log.plants[1].ph ?? '--'} · EC ${log.plants[1].ec ?? '--'} · Wassertemp ${log.plants[1].waterTemp ?? '--'}°C</p>
+              <p>Root Health: ${log.plants[1].rootHealth}</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400">Luft ${log.airTemp ?? '--'}°C · RLF ${log.humidity ?? '--'}% · Notiz: ${log.notes || '—'}</p>
+        `;
+        elements.logList.appendChild(card);
+      });
+    }
+
+    async function persistData() {
+      const response = await window.dwcAPI.saveData(state.data);
+      if (!response.ok) {
+        alert(response.error);
+      }
+    }
+
+    setupForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      state.data.setup.startDate = elements.startDate.value;
+      state.data.setup.harvestDays = Number(elements.harvestDays.value) || 56;
+      state.data.setup.plants[0] = {
+        name: elements.plant1Name.value || 'Pflanze 1',
+        bucket: elements.plant1Bucket.value || 'Eimer A',
+        strain: elements.plant1Strain.value
+      };
+      state.data.setup.plants[1] = {
+        name: elements.plant2Name.value || 'Pflanze 2',
+        bucket: elements.plant2Bucket.value || 'Eimer B',
+        strain: elements.plant2Strain.value
+      };
+      await persistData();
+      updateDashboard();
+      updateChart();
+    });
+
+    logForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const newLog = {
+        timestamp: new Date().toISOString(),
+        airTemp: elements.airTemp.value ? Number(elements.airTemp.value) : null,
+        humidity: elements.humidity.value ? Number(elements.humidity.value) : null,
+        h2o2Refill: elements.h2o2Refill.checked,
+        notes: elements.notes.value,
+        plants: [
+          {
+            name: state.data.setup.plants[0]?.name || 'Pflanze 1',
+            ph: elements.p1Ph.value ? Number(elements.p1Ph.value) : null,
+            ec: elements.p1Ec.value ? Number(elements.p1Ec.value) : null,
+            waterTemp: elements.p1WaterTemp.value ? Number(elements.p1WaterTemp.value) : null,
+            rootHealth: elements.p1Root.value
+          },
+          {
+            name: state.data.setup.plants[1]?.name || 'Pflanze 2',
+            ph: elements.p2Ph.value ? Number(elements.p2Ph.value) : null,
+            ec: elements.p2Ec.value ? Number(elements.p2Ec.value) : null,
+            waterTemp: elements.p2WaterTemp.value ? Number(elements.p2WaterTemp.value) : null,
+            rootHealth: elements.p2Root.value
+          }
+        ]
+      };
+
+      state.data.logs.unshift(newLog);
+      await persistData();
+      logForm.reset();
+      updateDashboard();
+      updateChart();
+      updateLogsList();
+    });
+
+    function updateCalculators() {
+      const volume = Number(elements.h2o2Volume.value);
+      const perLiter = Number(elements.h2o2PerLiter.value);
+      if (!Number.isNaN(volume) && !Number.isNaN(perLiter)) {
+        elements.h2o2Result.value = `${(volume * perLiter).toFixed(1)} ml`;
+      } else {
+        elements.h2o2Result.value = '';
+      }
+
+      const hesiVolume = Number(elements.hesiVolume.value);
+      const growRate = Number(elements.hesiGrow.value);
+      const bloomRate = Number(elements.hesiBloom.value);
+      const boostRate = Number(elements.hesiBoost.value);
+      if (!Number.isNaN(hesiVolume) && !Number.isNaN(growRate)) {
+        elements.hesiGrowResult.value = `${(hesiVolume * growRate).toFixed(1)} ml`;
+      } else {
+        elements.hesiGrowResult.value = '';
+      }
+      if (!Number.isNaN(hesiVolume) && !Number.isNaN(bloomRate) && !Number.isNaN(boostRate)) {
+        elements.hesiBloomResult.value = `${(hesiVolume * bloomRate).toFixed(1)} ml + ${(hesiVolume * boostRate).toFixed(1)} ml`;
+      } else {
+        elements.hesiBloomResult.value = '';
+      }
+    }
+
+    [
+      elements.h2o2Volume,
+      elements.h2o2PerLiter,
+      elements.hesiVolume,
+      elements.hesiGrow,
+      elements.hesiBloom,
+      elements.hesiBoost
+    ].forEach((input) => {
+      input.addEventListener('input', updateCalculators);
+    });
+
+    async function init() {
+      const response = await window.dwcAPI.loadData();
+      if (!response.ok) {
+        alert(response.error);
+        state.data = {
+          setup: {
+            startDate: '',
+            harvestDays: 56,
+            plants: [
+              { name: 'Pflanze 1', bucket: 'Eimer A', strain: '' },
+              { name: 'Pflanze 2', bucket: 'Eimer B', strain: '' }
+            ]
+          },
+          logs: []
+        };
+      } else {
+        state.data = response.data;
+        if (response.info) {
+          console.info(response.info);
+        }
+      }
+
+      updateSetupFields();
+      updateDashboard();
+      updateChart();
+      updateLogsList();
+      updateCalculators();
+    }
+
+    init();
+  </script>
+</body>
+</html>
