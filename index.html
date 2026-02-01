@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DWC Commander - Biohazard Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ctp-base: #1e1e2e;
+      --ctp-mantle: #181825;
+      --ctp-crust: #11111b;
+      --ctp-text: #cdd6f4;
+      --ctp-subtext0: #a6adc8;
+      --ctp-surface0: #313244;
+      --ctp-surface1: #45475a;
+      --ctp-surface2: #585b70;
+      --ctp-overlay0: #6c7086;
+      --ctp-teal: #94e2d5;
+      --ctp-mauve: #cba6f7;
+      --ctp-peach: #fab387;
+      --ctp-yellow: #f9e2af;
+      --ctp-lavender: #b4befe;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, var(--ctp-surface0) 0%, var(--ctp-mantle) 55%, var(--ctp-crust) 100%);
+      color: var(--ctp-text);
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass {
+      background: rgba(49, 50, 68, 0.6);
+      border: 1px solid rgba(148, 226, 213, 0.25);
+      box-shadow: 0 20px 40px rgba(17, 17, 27, 0.6);
+      backdrop-filter: blur(18px);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 18px rgba(148, 226, 213, 0.35);
+    }
+    .glow-gold {
+      box-shadow: 0 0 18px rgba(250, 179, 135, 0.35);
+    }
+    .accent-cyan {
+      color: var(--ctp-teal);
+    }
+    .accent-gold {
+      color: var(--ctp-peach);
+    }
+    .badge {
+      border: 1px solid rgba(250, 179, 135, 0.5);
+      background: rgba(250, 179, 135, 0.1);
+      color: var(--ctp-yellow);
+    }
+    .btn-primary {
+      background: rgba(148, 226, 213, 0.2);
+      border: 1px solid rgba(148, 226, 213, 0.6);
+      color: var(--ctp-teal);
+    }
+    .btn-primary:hover {
+      background: rgba(148, 226, 213, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(250, 179, 135, 0.2);
+      border: 1px solid rgba(250, 179, 135, 0.6);
+      color: var(--ctp-peach);
+    }
+    .btn-secondary:hover {
+      background: rgba(250, 179, 135, 0.3);
+    }
+    .pill {
+      background: rgba(180, 190, 254, 0.12);
+      border: 1px solid rgba(180, 190, 254, 0.4);
+      color: var(--ctp-lavender);
+    }
+    .alert {
+      border-left: 3px solid var(--ctp-peach);
+      background: rgba(69, 71, 90, 0.5);
+    }
+    .gallery-item {
+      border: 1px solid rgba(108, 112, 134, 0.5);
+      background: rgba(30, 30, 46, 0.6);
+    }
+    input, select, textarea {
+      background: rgba(24, 24, 37, 0.85);
+      border: 1px solid rgba(108, 112, 134, 0.6);
+      color: var(--ctp-text);
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--ctp-mauve);
+      box-shadow: 0 0 0 2px rgba(203, 166, 247, 0.3);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-6xl mx-auto px-6 py-10">
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-semibold tracking-tight accent-cyan">DWC Commander</h1>
+        <p class="text-sm text-slate-300">Biohazard Edition · Hydroponisches DWC Management</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <span class="badge px-4 py-2 rounded-full text-xs uppercase tracking-[0.2em] mono">Dark Ops</span>
+        <span class="badge px-4 py-2 rounded-full text-xs uppercase tracking-[0.2em] mono">Neon Protocol</span>
+      </div>
+    </header>
+
+    <nav class="mt-8 flex flex-wrap gap-3">
+      <button id="tabDashboard" class="rounded-lg px-4 py-2 uppercase tracking-[0.2em] text-xs btn-primary">Dashboard</button>
+      <button id="tabHistory" class="rounded-lg px-4 py-2 uppercase tracking-[0.2em] text-xs btn-secondary">History & Galerie</button>
+    </nav>
+
+    <section id="dashboardTab" class="mt-10 grid lg:grid-cols-2 gap-6">
+      <div class="glass rounded-2xl p-6 glow-cyan">
+        <h2 class="text-xl font-semibold accent-gold">Setup</h2>
+        <p class="text-sm text-slate-300">Startdatum, Pflanzen und Ernteplanung.</p>
+        <form id="setupForm" class="mt-4 space-y-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Startdatum</label>
+              <input type="date" id="startDate" class="mt-2 w-full rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Ernte in Tagen</label>
+              <input type="number" id="harvestDays" class="mt-2 w-full rounded-lg px-3 py-2 mono" value="56" min="1" />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass rounded-xl p-4">
+              <h3 class="text-sm font-semibold accent-cyan">Pflanze 1</h3>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Name</label>
+              <input id="plant1Name" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Name" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Eimer</label>
+              <input id="plant1Bucket" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Eimer" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Eimergröße (L)</label>
+              <input id="plant1BucketSize" type="number" step="0.5" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="z. B. 20" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Strain</label>
+              <input id="plant1Strain" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Strain" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Breeder</label>
+              <input id="plant1Breeder" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Breeder" />
+            </div>
+            <div class="glass rounded-xl p-4">
+              <h3 class="text-sm font-semibold accent-cyan">Pflanze 2</h3>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Name</label>
+              <input id="plant2Name" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Name" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Eimer</label>
+              <input id="plant2Bucket" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Eimer" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Eimergröße (L)</label>
+              <input id="plant2BucketSize" type="number" step="0.5" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="z. B. 20" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Strain</label>
+              <input id="plant2Strain" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Strain" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Breeder</label>
+              <input id="plant2Breeder" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Breeder" />
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-gold">Alarm-Schwellen</h3>
+            <div class="grid md:grid-cols-4 gap-3 mt-3">
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">pH min</label>
+                <input id="thresholdPhLow" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="pH min" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">pH max</label>
+                <input id="thresholdPhHigh" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="pH max" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">EC max</label>
+                <input id="thresholdEcHigh" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="EC max" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Wassertemp max</label>
+                <input id="thresholdWaterTempHigh" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Wassertemp max" />
+              </div>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-gold">Dünger-Management</h3>
+            <div class="grid md:grid-cols-2 gap-4 mt-3">
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Nährstoffprofil</label>
+                <select id="nutrientProfile" class="mt-2 w-full rounded-lg px-3 py-2"></select>
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Phase</label>
+                <select id="nutrientPhase" class="mt-2 w-full rounded-lg px-3 py-2">
+                  <option value="veg">Veg</option>
+                  <option value="bloom">Bloom</option>
+                </select>
+              </div>
+            </div>
+            <div id="nutrientDoseList" class="mt-4 text-sm text-slate-200 space-y-2"></div>
+          </div>
+          <button type="submit" class="mt-2 w-full rounded-lg py-2 uppercase tracking-[0.2em] text-xs btn-primary">Setup speichern</button>
+        </form>
+      </div>
+
+      <div class="glass rounded-2xl p-6 glow-gold">
+        <h2 class="text-xl font-semibold accent-gold">Logging</h2>
+        <p class="text-sm text-slate-300">Protokolliere pH, EC, Temperaturen und Root Health.</p>
+        <form id="logForm" class="mt-4 space-y-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass rounded-xl p-4">
+              <h3 class="text-sm font-semibold accent-cyan">Pflanze 1</h3>
+              <div class="grid grid-cols-3 gap-3 mt-2">
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">pH</label>
+                  <input id="p1Ph" type="number" step="0.01" placeholder="pH" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">EC</label>
+                  <input id="p1Ec" type="number" step="0.01" placeholder="EC" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Wassertemp</label>
+                  <input id="p1WaterTemp" type="number" step="0.1" placeholder="Wassertemp" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+              </div>
+              <select id="p1Root" class="mt-3 w-full rounded-lg px-3 py-2">
+                <option value="Good">Root Health: Good</option>
+                <option value="Watch">Root Health: Watch</option>
+                <option value="Critical">Root Health: Critical</option>
+              </select>
+            </div>
+            <div class="glass rounded-xl p-4">
+              <h3 class="text-sm font-semibold accent-cyan">Pflanze 2</h3>
+              <div class="grid grid-cols-3 gap-3 mt-2">
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">pH</label>
+                  <input id="p2Ph" type="number" step="0.01" placeholder="pH" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">EC</label>
+                  <input id="p2Ec" type="number" step="0.01" placeholder="EC" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Wassertemp</label>
+                  <input id="p2WaterTemp" type="number" step="0.1" placeholder="Wassertemp" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+              </div>
+              <select id="p2Root" class="mt-3 w-full rounded-lg px-3 py-2">
+                <option value="Good">Root Health: Good</option>
+                <option value="Watch">Root Health: Watch</option>
+                <option value="Critical">Root Health: Critical</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-4 gap-4">
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Lufttemp (°C)</label>
+              <input id="airTemp" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">RLF (%)</label>
+              <input id="humidity" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">H2O2 Refill</label>
+              <div class="mt-3 flex items-center gap-2">
+                <input id="h2o2Refill" type="checkbox" class="h-4 w-4" />
+                <span class="text-sm text-slate-300">Refill durchgeführt</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Notizen</label>
+              <input id="notes" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="z. B. Wasserwechsel" />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-3 gap-4">
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Feeding-Profil</label>
+              <select id="recipeSelect" class="mt-2 w-full rounded-lg px-3 py-2"></select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Foto-Upload (Galerie)</label>
+              <input id="photoUpload" type="file" accept="image/*" multiple class="mt-2 w-full rounded-lg px-3 py-2" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <span id="recipeInfo" class="pill px-3 py-2 rounded-full text-xs mono">Profil: --</span>
+            <span id="driftTag" class="pill px-3 py-2 rounded-full text-xs mono">Drift: --</span>
+          </div>
+          <button id="logSubmit" type="submit" class="mt-2 w-full rounded-lg py-2 uppercase tracking-[0.2em] text-xs btn-secondary">Log hinzufügen</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="mt-10 grid lg:grid-cols-2 gap-6">
+      <div class="glass rounded-2xl p-6 glow-cyan">
+        <h2 class="text-xl font-semibold accent-gold">Dashboard</h2>
+        <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">VPD</p>
+            <p id="vpdValue" class="text-2xl mono accent-cyan">-- kPa</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Tage seit H2O2</p>
+            <p id="daysSinceH2o2" class="text-2xl mono accent-cyan">--</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Ernte Countdown</p>
+            <p id="harvestCountdown" class="text-2xl mono accent-gold">--</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Drift Analyse</p>
+            <p id="driftStatus" class="text-sm mono text-slate-200">--</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">EC Delta 24h</p>
+            <p id="ecDelta" class="text-2xl mono accent-cyan">--</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">pH Drift 7 Tage</p>
+            <p id="phDrift" class="text-2xl mono accent-cyan">--</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">VPD Trend 30d</p>
+            <p id="vpdTrend" class="text-2xl mono accent-cyan">--</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Stabilitätsindex</p>
+            <p id="stabilityIndex" class="text-2xl mono accent-gold">--</p>
+          </div>
+        </div>
+        <div class="mt-6 glass rounded-xl p-4">
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Live Alerts</p>
+          <div id="alertList" class="mt-3 space-y-2 text-sm"></div>
+        </div>
+        <div class="mt-6">
+          <canvas id="ecChart" height="180"></canvas>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 glow-gold">
+        <h2 class="text-xl font-semibold accent-gold">Rechner</h2>
+        <div class="mt-4 space-y-6">
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-cyan">Licht-Tracker</h3>
+            <div class="grid md:grid-cols-2 gap-4 mt-3 items-center">
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Startzeit</label>
+                  <input id="lightStart" type="time" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Phase</label>
+                  <select id="lightPhase" class="mt-2 w-full rounded-lg px-3 py-2">
+                    <option value="veg">Veg (18h Licht)</option>
+                    <option value="bloom">Bloom (12h Licht)</option>
+                  </select>
+                </div>
+                <p id="lightStatus" class="text-sm text-slate-200">Status: --</p>
+                <p id="lightCountdown" class="text-xs text-slate-400">Nächster Switch: --</p>
+              </div>
+              <div class="flex items-center justify-center">
+                <svg id="lightProgress" width="140" height="140" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" stroke="rgba(148, 226, 213, 0.2)" stroke-width="10" fill="none"></circle>
+                  <circle id="lightProgressCircle" cx="60" cy="60" r="52" stroke="#94e2d5" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327"></circle>
+                  <text id="lightProgressText" x="60" y="66" text-anchor="middle" class="mono" fill="#cdd6f4" font-size="16">0%</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-cyan">H2O2 Dosierung</h3>
+            <div class="grid grid-cols-3 gap-3 mt-3">
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Volumen (L)</label>
+                <input id="h2o2Volume" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Volumen (L)" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">ml/L</label>
+                <input id="h2o2PerLiter" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="ml/L" value="2" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Gesamt ml</label>
+                <input id="h2o2Result" type="text" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Gesamt ml" readonly />
+              </div>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-cyan">Hesi Dünger</h3>
+            <div class="grid grid-cols-3 gap-3 mt-3">
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Volumen (L)</label>
+                <input id="hesiVolume" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Volumen (L)" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Grow ml/L</label>
+                <input id="hesiGrow" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Grow ml/L" value="2.5" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Grow Gesamt</label>
+                <input id="hesiGrowResult" type="text" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Grow Gesamt" readonly />
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mt-3">
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Bloom ml/L</label>
+                <input id="hesiBloom" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Bloom ml/L" value="5" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Boost ml/L</label>
+                <input id="hesiBoost" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Boost ml/L" value="1" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Bloom/Boost Gesamt</label>
+                <input id="hesiBloomResult" type="text" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Bloom/Boost Gesamt" readonly />
+              </div>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-cyan">HESI Hydro Guide</h3>
+            <p class="text-xs text-slate-300 mt-2">Für DWC 75–80% der Max-Dosierung nutzen. Alle Werte pro 10L Wasser.</p>
+            <div class="mt-4 overflow-x-auto">
+              <table class="w-full text-xs text-slate-200">
+                <thead class="text-slate-300">
+                  <tr>
+                    <th class="text-left py-2">Phase</th>
+                    <th class="text-left py-2">Woche</th>
+                    <th class="text-left py-2">Hydro Wuchs/Blüte</th>
+                    <th class="text-left py-2">Wurzel Complex</th>
+                    <th class="text-left py-2">SuperVit</th>
+                    <th class="text-left py-2">PowerZyme</th>
+                    <th class="text-left py-2">PK 13/14</th>
+                    <th class="text-left py-2">Hesi Boost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="py-2">Wuchs</td>
+                    <td class="py-2">1 (Keim)</td>
+                    <td class="py-2">25 ml (Wuchs)</td>
+                    <td class="py-2">50 ml</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Wuchs</td>
+                    <td class="py-2">2</td>
+                    <td class="py-2">50 ml (Wuchs)</td>
+                    <td class="py-2">50 ml</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">1 + 2</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">25 ml</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">3 + 4</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">2,5 ml</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">5</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">5,0 ml</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">6</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">7,5 ml</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">7</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">15,0 ml</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Ernte</td>
+                    <td class="py-2">8</td>
+                    <td class="py-2">Nur Wasser</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="historyTab" class="mt-10 hidden">
+      <div class="glass rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <h2 class="text-xl font-semibold accent-gold">History & Galerie</h2>
+          <div class="flex flex-wrap gap-3">
+            <button id="exportJson" class="rounded-lg px-4 py-2 uppercase tracking-[0.2em] text-xs btn-primary">Export JSON</button>
+            <button id="exportCsv" class="rounded-lg px-4 py-2 uppercase tracking-[0.2em] text-xs btn-secondary">Export CSV</button>
+            <button id="backupNow" class="rounded-lg px-4 py-2 uppercase tracking-[0.2em] text-xs btn-primary">Backup</button>
+          </div>
+        </div>
+        <div class="mt-4 glass rounded-xl p-4">
+          <div class="grid md:grid-cols-3 gap-4">
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Suche</label>
+              <input id="logSearch" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Notiz, Werte, Rezept..." />
+            </div>
+            <div>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Pflanze</label>
+              <select id="logPlantFilter" class="mt-2 w-full rounded-lg px-3 py-2"></select>
+            </div>
+            <div class="flex items-end gap-3">
+              <label class="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-slate-300">
+                <input id="showTrash" type="checkbox" class="h-4 w-4" />
+                Papierkorb anzeigen
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 grid lg:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-sm font-semibold accent-cyan">Timeline Logs</h3>
+            <div id="logList" class="mt-4 space-y-3"></div>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold accent-cyan">Foto Galerie</h3>
+            <div id="galleryList" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+          </div>
+        </div>
+        <div class="mt-6">
+          <h3 class="text-sm font-semibold accent-cyan">Papierkorb</h3>
+          <div id="trashList" class="mt-4 space-y-3"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const state = {
+      data: null,
+      chart: null,
+      editingLogId: null,
+      nutrients: null,
+      lightTimer: null
+    };
+
+    const elements = {
+      tabDashboard: document.getElementById('tabDashboard'),
+      tabHistory: document.getElementById('tabHistory'),
+      dashboardTab: document.getElementById('dashboardTab'),
+      historyTab: document.getElementById('historyTab'),
+      startDate: document.getElementById('startDate'),
+      harvestDays: document.getElementById('harvestDays'),
+      plant1Name: document.getElementById('plant1Name'),
+      plant1Bucket: document.getElementById('plant1Bucket'),
+      plant1BucketSize: document.getElementById('plant1BucketSize'),
+      plant1Strain: document.getElementById('plant1Strain'),
+      plant1Breeder: document.getElementById('plant1Breeder'),
+      plant2Name: document.getElementById('plant2Name'),
+      plant2Bucket: document.getElementById('plant2Bucket'),
+      plant2BucketSize: document.getElementById('plant2BucketSize'),
+      plant2Strain: document.getElementById('plant2Strain'),
+      plant2Breeder: document.getElementById('plant2Breeder'),
+      thresholdPhLow: document.getElementById('thresholdPhLow'),
+      thresholdPhHigh: document.getElementById('thresholdPhHigh'),
+      thresholdEcHigh: document.getElementById('thresholdEcHigh'),
+      thresholdWaterTempHigh: document.getElementById('thresholdWaterTempHigh'),
+      nutrientProfile: document.getElementById('nutrientProfile'),
+      nutrientPhase: document.getElementById('nutrientPhase'),
+      nutrientDoseList: document.getElementById('nutrientDoseList'),
+      p1Ph: document.getElementById('p1Ph'),
+      p1Ec: document.getElementById('p1Ec'),
+      p1WaterTemp: document.getElementById('p1WaterTemp'),
+      p1Root: document.getElementById('p1Root'),
+      p2Ph: document.getElementById('p2Ph'),
+      p2Ec: document.getElementById('p2Ec'),
+      p2WaterTemp: document.getElementById('p2WaterTemp'),
+      p2Root: document.getElementById('p2Root'),
+      airTemp: document.getElementById('airTemp'),
+      humidity: document.getElementById('humidity'),
+      h2o2Refill: document.getElementById('h2o2Refill'),
+      notes: document.getElementById('notes'),
+      recipeSelect: document.getElementById('recipeSelect'),
+      recipeInfo: document.getElementById('recipeInfo'),
+      driftTag: document.getElementById('driftTag'),
+      photoUpload: document.getElementById('photoUpload'),
+      vpdValue: document.getElementById('vpdValue'),
+      daysSinceH2o2: document.getElementById('daysSinceH2o2'),
+      harvestCountdown: document.getElementById('harvestCountdown'),
+      driftStatus: document.getElementById('driftStatus'),
+      ecDelta: document.getElementById('ecDelta'),
+      phDrift: document.getElementById('phDrift'),
+      vpdTrend: document.getElementById('vpdTrend'),
+      stabilityIndex: document.getElementById('stabilityIndex'),
+      alertList: document.getElementById('alertList'),
+      logList: document.getElementById('logList'),
+      galleryList: document.getElementById('galleryList'),
+      trashList: document.getElementById('trashList'),
+      exportJson: document.getElementById('exportJson'),
+      exportCsv: document.getElementById('exportCsv'),
+      backupNow: document.getElementById('backupNow'),
+      logSubmit: document.getElementById('logSubmit'),
+      logSearch: document.getElementById('logSearch'),
+      logPlantFilter: document.getElementById('logPlantFilter'),
+      showTrash: document.getElementById('showTrash'),
+      h2o2Volume: document.getElementById('h2o2Volume'),
+      h2o2PerLiter: document.getElementById('h2o2PerLiter'),
+      h2o2Result: document.getElementById('h2o2Result'),
+      hesiVolume: document.getElementById('hesiVolume'),
+      hesiGrow: document.getElementById('hesiGrow'),
+      hesiGrowResult: document.getElementById('hesiGrowResult'),
+      hesiBloom: document.getElementById('hesiBloom'),
+      hesiBoost: document.getElementById('hesiBoost'),
+      hesiBloomResult: document.getElementById('hesiBloomResult'),
+      lightStart: document.getElementById('lightStart'),
+      lightPhase: document.getElementById('lightPhase'),
+      lightStatus: document.getElementById('lightStatus'),
+      lightCountdown: document.getElementById('lightCountdown'),
+      lightProgressCircle: document.getElementById('lightProgressCircle'),
+      lightProgressText: document.getElementById('lightProgressText')
+    };
+
+    const setupForm = document.getElementById('setupForm');
+    const logForm = document.getElementById('logForm');
+
+    function formatDate(dateString) {
+      if (!dateString) return '--';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function daysBetween(date1, date2) {
+      const diff = date2.getTime() - date1.getTime();
+      return Math.floor(diff / (1000 * 60 * 60 * 24));
+    }
+
+    function calculateVpd(tempC, rh) {
+      if (tempC === null || rh === null) return null;
+      const saturation = 0.6108 * Math.exp((17.27 * tempC) / (tempC + 237.3));
+      const vpd = (1 - rh / 100) * saturation;
+      return vpd;
+    }
+
+    function normalizeData(data) {
+      const normalized = data || {};
+      normalized.setup = normalized.setup || {};
+      normalized.setup.startDate = normalized.setup.startDate || '';
+      normalized.setup.harvestDays = normalized.setup.harvestDays || 56;
+      normalized.setup.plants = normalized.setup.plants || [
+        { name: 'Pflanze 1', bucket: 'Eimer A', strain: '', breeder: '' },
+        { name: 'Pflanze 2', bucket: 'Eimer B', strain: '', breeder: '' }
+      ];
+      normalized.setup.plants = normalized.setup.plants.map((plant, index) => ({
+        name: plant?.name || `Pflanze ${index + 1}`,
+        bucket: plant?.bucket || (index === 0 ? 'Eimer A' : 'Eimer B'),
+        bucketSizeL: plant?.bucketSizeL ?? 20,
+        strain: plant?.strain || '',
+        breeder: plant?.breeder || ''
+      }));
+      normalized.setup.thresholds = normalized.setup.thresholds || {
+        phLow: 5.5,
+        phHigh: 6.5,
+        ecHigh: 2.4,
+        waterTempHigh: 22.5
+      };
+      normalized.setup.nutrients = normalized.setup.nutrients || {
+        profileId: 'hesi-hydro',
+        phase: 'veg'
+      };
+      normalized.setup.light = normalized.setup.light || {
+        startTime: '06:00',
+        phase: 'veg'
+      };
+      normalized.recipes = normalized.recipes || {
+        selected: 'Standard Veg',
+        presets: [
+          { name: 'Standard Veg', grow: 2.5, bloom: 0, boost: 0 },
+          { name: 'Bloom Week', grow: 1.5, bloom: 5, boost: 1 },
+          { name: 'Heavy Feed', grow: 3, bloom: 6, boost: 1.5 }
+        ]
+      };
+      normalized.logs = (normalized.logs || []).map((log, index) => ({
+        ...log,
+        id: log.id || `log-${new Date(log.timestamp || Date.now()).getTime()}-${index}`,
+        photos: log.photos || [],
+        recipe: log.recipe || null,
+        deletedAt: log.deletedAt || null,
+        plants: (log.plants || []).map((plant) => ({
+          ...plant,
+          rootHealth: plant.rootHealth || 'Good'
+        }))
+      }));
+      return normalized;
+    }
+
+    function getLogsWithinDays(days) {
+      const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+      return getVisibleLogs().filter((log) => new Date(log.timestamp).getTime() >= cutoff);
+    }
+
+    function average(values) {
+      const valid = values.filter((value) => value !== null && !Number.isNaN(value));
+      if (!valid.length) return null;
+      const total = valid.reduce((sum, value) => sum + value, 0);
+      return total / valid.length;
+    }
+
+    function getVisibleLogs() {
+      return state.data.logs.filter((log) => !log.deletedAt);
+    }
+
+    function calculateStabilityIndex(logs) {
+      if (!logs.length) return null;
+      const phValues = logs.flatMap((log) => log.plants.map((plant) => plant.ph)).filter((v) => v !== null);
+      const ecValues = logs.flatMap((log) => log.plants.map((plant) => plant.ec)).filter((v) => v !== null);
+      if (!phValues.length || !ecValues.length) return null;
+      const phAvg = average(phValues);
+      const ecAvg = average(ecValues);
+      const phVariance = average(phValues.map((v) => (v - phAvg) ** 2)) || 0;
+      const ecVariance = average(ecValues.map((v) => (v - ecAvg) ** 2)) || 0;
+      const phScore = Math.max(0, 50 - phVariance * 100);
+      const ecScore = Math.max(0, 50 - ecVariance * 20);
+      return Math.min(100, Math.round(phScore + ecScore));
+    }
+
+    function updateSetupFields() {
+      const { setup } = state.data;
+      elements.startDate.value = setup.startDate || '';
+      elements.harvestDays.value = setup.harvestDays || 56;
+      elements.plant1Name.value = setup.plants[0]?.name || '';
+      elements.plant1Bucket.value = setup.plants[0]?.bucket || '';
+      elements.plant1BucketSize.value = setup.plants[0]?.bucketSizeL ?? 20;
+      elements.plant1Strain.value = setup.plants[0]?.strain || '';
+      elements.plant1Breeder.value = setup.plants[0]?.breeder || '';
+      elements.plant2Name.value = setup.plants[1]?.name || '';
+      elements.plant2Bucket.value = setup.plants[1]?.bucket || '';
+      elements.plant2BucketSize.value = setup.plants[1]?.bucketSizeL ?? 20;
+      elements.plant2Strain.value = setup.plants[1]?.strain || '';
+      elements.plant2Breeder.value = setup.plants[1]?.breeder || '';
+      elements.thresholdPhLow.value = setup.thresholds?.phLow ?? 5.5;
+      elements.thresholdPhHigh.value = setup.thresholds?.phHigh ?? 6.5;
+      elements.thresholdEcHigh.value = setup.thresholds?.ecHigh ?? 2.4;
+      elements.thresholdWaterTempHigh.value = setup.thresholds?.waterTempHigh ?? 22.5;
+      elements.nutrientPhase.value = setup.nutrients?.phase || 'veg';
+      elements.lightStart.value = setup.light?.startTime || '06:00';
+      elements.lightPhase.value = setup.light?.phase || 'veg';
+    }
+
+    function updateDashboard() {
+      const logs = state.data.logs.filter((log) => !log.deletedAt);
+      const latestLog = logs[0];
+      if (latestLog) {
+        const vpd = calculateVpd(latestLog.airTemp, latestLog.humidity);
+        elements.vpdValue.textContent = vpd ? `${vpd.toFixed(2)} kPa` : '-- kPa';
+      } else {
+        elements.vpdValue.textContent = '-- kPa';
+      }
+
+      const h2o2Log = logs.find((log) => log.h2o2Refill);
+      if (h2o2Log) {
+        const days = daysBetween(new Date(h2o2Log.timestamp), new Date());
+        elements.daysSinceH2o2.textContent = `${days} Tage`;
+      } else {
+        elements.daysSinceH2o2.textContent = 'Kein Eintrag';
+      }
+
+      const startDate = state.data.setup.startDate ? new Date(state.data.setup.startDate) : null;
+      if (startDate) {
+        const harvestDays = Number(state.data.setup.harvestDays) || 56;
+        const harvestDate = new Date(startDate);
+        harvestDate.setDate(harvestDate.getDate() + harvestDays);
+        const daysLeft = daysBetween(new Date(), harvestDate);
+        elements.harvestCountdown.textContent = `${daysLeft} Tage (${formatDate(harvestDate.toISOString())})`;
+      } else {
+        elements.harvestCountdown.textContent = '--';
+      }
+
+      const driftMessage = getDriftStatus(logs);
+      elements.driftStatus.textContent = driftMessage;
+      elements.driftTag.textContent = driftMessage.includes('Warnung') ? 'Drift: Achtung' : 'Drift: Stabil';
+
+      const ecDelta = getEcDelta();
+      elements.ecDelta.textContent = ecDelta !== null ? `${ecDelta.toFixed(2)} EC` : '--';
+
+      const phDrift = getPhDrift();
+      elements.phDrift.textContent = phDrift !== null ? `${phDrift.toFixed(2)} pH` : '--';
+
+      const vpdTrend = getVpdTrend();
+      elements.vpdTrend.textContent = vpdTrend !== null ? `${vpdTrend.toFixed(2)} kPa` : '--';
+
+      const stability = calculateStabilityIndex(logs.slice(0, 10));
+      elements.stabilityIndex.textContent = stability !== null ? `${stability} / 100` : '--';
+
+      updateAlerts();
+      updateRecipeInfo();
+    }
+
+    function getDriftStatus(logs) {
+      if (logs.length < 2) {
+        return 'Nicht genug Daten für Drift-Analyse.';
+      }
+      const [latest, previous] = logs;
+      const ecUp = latest.plants.some((plant, index) => {
+        const prev = previous.plants[index];
+        return plant.ec !== null && prev.ec !== null && plant.ec > prev.ec;
+      });
+      const phDown = latest.plants.some((plant, index) => {
+        const prev = previous.plants[index];
+        return plant.ph !== null && prev.ph !== null && plant.ph < prev.ph;
+      });
+      if (ecUp && phDown) {
+        return 'Warnung: EC steigt und pH fällt — mögliches Nährstoffbrand-Risiko.';
+      }
+      return 'Stabil: Kein kritischer Drift erkannt.';
+    }
+
+    function getEcDelta() {
+      const logs = getVisibleLogs();
+      if (logs.length < 2) return null;
+      const latest = logs[0];
+      const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+      const previous = logs.find((log) => new Date(log.timestamp).getTime() <= cutoff) || logs[1];
+      if (!previous) return null;
+      const latestAvg = average(latest.plants.map((plant) => plant.ec).filter((v) => v !== null));
+      const previousAvg = average(previous.plants.map((plant) => plant.ec).filter((v) => v !== null));
+      if (latestAvg === null || previousAvg === null) return null;
+      return latestAvg - previousAvg;
+    }
+
+    function getPhDrift() {
+      const recent = getLogsWithinDays(7);
+      const prior = getVisibleLogs().filter((log) => {
+        const time = new Date(log.timestamp).getTime();
+        return time < Date.now() - 7 * 24 * 60 * 60 * 1000 && time >= Date.now() - 14 * 24 * 60 * 60 * 1000;
+      });
+      const recentAvg = average(recent.flatMap((log) => log.plants.map((plant) => plant.ph)).filter((v) => v !== null));
+      const priorAvg = average(prior.flatMap((log) => log.plants.map((plant) => plant.ph)).filter((v) => v !== null));
+      if (recentAvg === null || priorAvg === null) return null;
+      return recentAvg - priorAvg;
+    }
+
+    function getVpdTrend() {
+      const recent = getLogsWithinDays(30);
+      const vpdValues = recent.map((log) => calculateVpd(log.airTemp, log.humidity)).filter((v) => v !== null);
+      return average(vpdValues);
+    }
+
+    function updateAlerts() {
+      const alerts = [];
+      const latest = state.data.logs[0];
+      const thresholds = state.data.setup.thresholds || {};
+      if (latest) {
+        latest.plants.forEach((plant) => {
+          if (plant.ph !== null && plant.ph < thresholds.phLow) {
+            alerts.push(`pH niedrig bei ${plant.name} (${plant.ph})`);
+          }
+          if (plant.ph !== null && plant.ph > thresholds.phHigh) {
+            alerts.push(`pH hoch bei ${plant.name} (${plant.ph})`);
+          }
+          if (plant.ec !== null && plant.ec > thresholds.ecHigh) {
+            alerts.push(`EC hoch bei ${plant.name} (${plant.ec})`);
+          }
+          if (plant.waterTemp !== null && plant.waterTemp > thresholds.waterTempHigh) {
+            alerts.push(`Wassertemp hoch bei ${plant.name} (${plant.waterTemp}°C)`);
+          }
+        });
+      }
+      if (getDriftStatus(state.data.logs).includes('Warnung')) {
+        alerts.push('Drift-Analyse: EC steigt & pH fällt');
+      }
+      elements.alertList.innerHTML = '';
+      if (!alerts.length) {
+        const empty = document.createElement('p');
+        empty.className = 'text-slate-300';
+        empty.textContent = 'Keine kritischen Alarme. System stabil.';
+        elements.alertList.appendChild(empty);
+        return;
+      }
+      alerts.forEach((alert) => {
+        const item = document.createElement('div');
+        item.className = 'alert rounded-lg px-3 py-2';
+        item.textContent = alert;
+        elements.alertList.appendChild(item);
+      });
+    }
+
+    function updateRecipeInfo() {
+      const selectedName = state.data.recipes?.selected;
+      const recipe = state.data.recipes?.presets.find((preset) => preset.name === selectedName);
+      if (!recipe) {
+        elements.recipeInfo.textContent = 'Profil: --';
+        return;
+      }
+      elements.recipeInfo.textContent = `Profil: ${recipe.name} · Grow ${recipe.grow} ml/L · Bloom ${recipe.bloom} ml/L · Boost ${recipe.boost} ml/L`;
+    }
+
+    function getSelectedNutrientProfile() {
+      if (!state.nutrients?.profiles?.length) return null;
+      const profileId = state.data.setup.nutrients?.profileId;
+      return state.nutrients.profiles.find((profile) => profile.id === profileId) || state.nutrients.profiles[0];
+    }
+
+    function getTargetEc() {
+      const profile = getSelectedNutrientProfile();
+      if (!profile) return null;
+      const phase = state.data.setup.nutrients?.phase || 'veg';
+      return profile.targets?.[phase] ?? null;
+    }
+
+    function updateNutrientDoseList() {
+      const profile = getSelectedNutrientProfile();
+      elements.nutrientDoseList.innerHTML = '';
+      if (!profile) {
+        elements.nutrientDoseList.textContent = 'Keine Nährstoffdaten geladen.';
+        return;
+      }
+      const phase = state.data.setup.nutrients?.phase || 'veg';
+      const doses = profile.dosesPer10L?.[phase] || {};
+      state.data.setup.plants.forEach((plant, index) => {
+        const bucketSize = Number(plant.bucketSizeL) || 0;
+        const entries = Object.entries(doses).map(([name, amount]) => {
+          const total = (Number(amount) * bucketSize) / 10;
+          return `${name}: ${total.toFixed(1)} ml`;
+        });
+        const card = document.createElement('div');
+        card.className = 'glass rounded-lg px-3 py-2';
+        card.innerHTML = `
+          <p class="accent-gold mono">${plant.name || `Pflanze ${index + 1}`} · ${bucketSize}L</p>
+          <p class="text-xs text-slate-300">${entries.join(' · ') || 'Keine Dosierung hinterlegt.'}</p>
+        `;
+        elements.nutrientDoseList.appendChild(card);
+      });
+    }
+
+    function populateNutrientProfiles() {
+      elements.nutrientProfile.innerHTML = '';
+      if (!state.nutrients?.profiles?.length) {
+        const option = document.createElement('option');
+        option.textContent = 'Keine Profile geladen';
+        option.value = '';
+        elements.nutrientProfile.appendChild(option);
+        return;
+      }
+      state.nutrients.profiles.forEach((profile) => {
+        const option = document.createElement('option');
+        option.value = profile.id;
+        option.textContent = profile.name;
+        elements.nutrientProfile.appendChild(option);
+      });
+      elements.nutrientProfile.value = state.data.setup.nutrients?.profileId || state.nutrients.profiles[0].id;
+      updateNutrientDoseList();
+    }
+
+    function populatePlantFilter() {
+      elements.logPlantFilter.innerHTML = '';
+      const option = document.createElement('option');
+      option.value = 'all';
+      option.textContent = 'Alle Pflanzen';
+      elements.logPlantFilter.appendChild(option);
+      state.data.setup.plants.forEach((plant) => {
+        const plantOption = document.createElement('option');
+        plantOption.value = plant.name;
+        plantOption.textContent = plant.name;
+        elements.logPlantFilter.appendChild(plantOption);
+      });
+    }
+
+    function updateLightTracker() {
+      const startTime = state.data.setup.light?.startTime || '06:00';
+      const phase = state.data.setup.light?.phase || 'veg';
+      const [hours, minutes] = startTime.split(':').map(Number);
+      const lightHours = phase === 'bloom' ? 12 : 18;
+      const darkHours = 24 - lightHours;
+      const now = new Date();
+      const start = new Date();
+      start.setHours(hours, minutes || 0, 0, 0);
+      if (now < start) {
+        start.setDate(start.getDate() - 1);
+      }
+      const lightEnd = new Date(start);
+      lightEnd.setHours(start.getHours() + lightHours);
+      let isLightOn = now >= start && now < lightEnd;
+      let nextSwitch = isLightOn ? lightEnd : start;
+      if (!isLightOn) {
+        nextSwitch = new Date(lightEnd);
+        nextSwitch.setHours(lightEnd.getHours() + darkHours);
+      }
+      const cycleStart = isLightOn ? start : lightEnd;
+      const cycleDuration = (isLightOn ? lightHours : darkHours) * 60 * 60 * 1000;
+      const progress = Math.min(1, Math.max(0, (now - cycleStart) / cycleDuration));
+      const percent = Math.round(progress * 100);
+      const circumference = 327;
+      elements.lightProgressCircle.style.strokeDasharray = `${circumference}`;
+      elements.lightProgressCircle.style.strokeDashoffset = `${circumference - circumference * progress}`;
+      elements.lightProgressText.textContent = `${percent}%`;
+      elements.lightStatus.textContent = `Status: ${isLightOn ? 'Licht an' : 'Licht aus'} (${phase.toUpperCase()})`;
+      const diffMs = nextSwitch - now;
+      const diffHours = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
+      const diffMinutes = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)));
+      elements.lightCountdown.textContent = `Nächster Switch in ${diffHours}h ${diffMinutes}m`;
+    }
+
+    function updateChart() {
+      const ctx = document.getElementById('ecChart').getContext('2d');
+      const visibleLogs = state.data.logs.filter((log) => !log.deletedAt);
+      const labels = visibleLogs.map((log) => new Date(log.timestamp).toLocaleDateString('de-DE')).reverse();
+      const plant1Ec = visibleLogs.map((log) => log.plants[0]?.ec ?? null).reverse();
+      const plant2Ec = visibleLogs.map((log) => log.plants[1]?.ec ?? null).reverse();
+
+      if (state.chart) {
+        state.chart.destroy();
+      }
+
+      const targetEc = getTargetEc();
+      const datasets = [
+        {
+          label: state.data.setup.plants[0]?.name || 'Pflanze 1',
+          data: plant1Ec,
+          borderColor: '#94e2d5',
+          backgroundColor: 'rgba(148, 226, 213, 0.2)',
+          tension: 0.3
+        },
+        {
+          label: state.data.setup.plants[1]?.name || 'Pflanze 2',
+          data: plant2Ec,
+          borderColor: '#fab387',
+          backgroundColor: 'rgba(250, 179, 135, 0.2)',
+          tension: 0.3
+        }
+      ];
+
+      if (targetEc !== null) {
+        datasets.push({
+          label: `Soll-EC (${targetEc.toFixed(2)})`,
+          data: labels.map(() => targetEc),
+          borderColor: 'rgba(180, 190, 254, 0.6)',
+          borderDash: [6, 6],
+          pointRadius: 0,
+          tension: 0
+        });
+      }
+
+      state.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#cdd6f4'
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#a6adc8' },
+              grid: { color: 'rgba(49, 50, 68, 0.6)' }
+            },
+            y: {
+              ticks: { color: '#a6adc8' },
+              grid: { color: 'rgba(49, 50, 68, 0.6)' }
+            }
+          }
+        }
+      });
+    }
+
+    function updateLogsList() {
+      elements.logList.innerHTML = '';
+      const query = elements.logSearch.value.toLowerCase();
+      const plantFilter = elements.logPlantFilter.value;
+      const visibleLogs = state.data.logs.filter((log) => !log.deletedAt);
+      const filtered = visibleLogs.filter((log) => {
+        const matchesPlant =
+          plantFilter === 'all' ||
+          log.plants.some((plant) => plant.name === plantFilter);
+        const haystack = [
+          log.notes,
+          log.recipe?.name,
+          log.plants[0]?.ph,
+          log.plants[0]?.ec,
+          log.plants[1]?.ph,
+          log.plants[1]?.ec
+        ]
+          .filter((value) => value !== null && value !== undefined)
+          .join(' ')
+          .toLowerCase();
+        const matchesQuery = !query || haystack.includes(query);
+        return matchesPlant && matchesQuery;
+      });
+
+      if (!filtered.length) {
+        const empty = document.createElement('p');
+        empty.className = 'text-slate-300 text-sm';
+        empty.textContent = 'Keine Logs gefunden.';
+        elements.logList.appendChild(empty);
+        return;
+      }
+
+      filtered.slice(0, 6).forEach((log) => {
+        const card = document.createElement('div');
+        card.className = 'glass rounded-xl p-4 flex flex-col gap-2';
+        const photoCount = log.photos?.length || 0;
+        const recipeLabel = log.recipe?.name ? ` · ${log.recipe.name}` : '';
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="mono text-sm">${new Date(log.timestamp).toLocaleString('de-DE')}</span>
+            <span class="text-xs uppercase tracking-[0.2em] accent-cyan">${log.h2o2Refill ? 'H2O2 Refill' : 'Standard'}${recipeLabel}</span>
+          </div>
+          <div class="grid md:grid-cols-2 gap-3 text-sm text-slate-200">
+            <div>
+              <p class="accent-gold mono">${log.plants[0].name}</p>
+              <p>pH ${log.plants[0].ph ?? '--'} · EC ${log.plants[0].ec ?? '--'} · Wassertemp ${log.plants[0].waterTemp ?? '--'}°C</p>
+              <p>Root Health: ${log.plants[0].rootHealth}</p>
+            </div>
+            <div>
+              <p class="accent-gold mono">${log.plants[1].name}</p>
+              <p>pH ${log.plants[1].ph ?? '--'} · EC ${log.plants[1].ec ?? '--'} · Wassertemp ${log.plants[1].waterTemp ?? '--'}°C</p>
+              <p>Root Health: ${log.plants[1].rootHealth}</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400">Luft ${log.airTemp ?? '--'}°C · RLF ${log.humidity ?? '--'}% · Fotos: ${photoCount} · Notiz: ${log.notes || '—'}</p>
+          <div class="flex flex-wrap gap-2">
+            <button data-action="edit" data-id="${log.id}" class="rounded-lg px-3 py-1 text-xs uppercase tracking-[0.2em] btn-primary">Bearbeiten</button>
+            <button data-action="delete" data-id="${log.id}" class="rounded-lg px-3 py-1 text-xs uppercase tracking-[0.2em] btn-secondary">Löschen</button>
+          </div>
+        `;
+        elements.logList.appendChild(card);
+      });
+    }
+
+    function updateTrashList() {
+      elements.trashList.innerHTML = '';
+      if (!elements.showTrash.checked) {
+        elements.trashList.innerHTML = '<p class="text-slate-300 text-sm">Papierkorb ausgeblendet.</p>';
+        return;
+      }
+      const trashed = state.data.logs.filter((log) => log.deletedAt);
+      if (!trashed.length) {
+        elements.trashList.innerHTML = '<p class="text-slate-300 text-sm">Papierkorb ist leer.</p>';
+        return;
+      }
+      trashed.slice(0, 6).forEach((log) => {
+        const card = document.createElement('div');
+        card.className = 'glass rounded-xl p-4 flex flex-col gap-2';
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="mono text-sm">${new Date(log.timestamp).toLocaleString('de-DE')}</span>
+            <span class="text-xs uppercase tracking-[0.2em] text-slate-300">Papierkorb</span>
+          </div>
+          <p class="text-xs text-slate-400">${log.notes || '—'}</p>
+          <div class="flex flex-wrap gap-2">
+            <button data-action="restore" data-id="${log.id}" class="rounded-lg px-3 py-1 text-xs uppercase tracking-[0.2em] btn-primary">Wiederherstellen</button>
+            <button data-action="purge" data-id="${log.id}" class="rounded-lg px-3 py-1 text-xs uppercase tracking-[0.2em] btn-secondary">Endgültig löschen</button>
+          </div>
+        `;
+        elements.trashList.appendChild(card);
+      });
+    }
+
+    function updateGallery() {
+      elements.galleryList.innerHTML = '';
+      const photos = state.data.logs
+        .filter((log) => !log.deletedAt)
+        .flatMap((log) => (log.photos || []).map((photo) => ({ path: photo, log })));
+      if (!photos.length) {
+        const empty = document.createElement('p');
+        empty.className = 'text-slate-300 text-sm';
+        empty.textContent = 'Noch keine Fotos in der Galerie.';
+        elements.galleryList.appendChild(empty);
+        return;
+      }
+      photos.slice(0, 12).forEach(({ path, log }) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'gallery-item rounded-lg p-2';
+        wrapper.innerHTML = `
+          <img src="file://${path}" alt="DWC Foto" class="rounded-md w-full h-32 object-cover" />
+          <p class="mt-2 text-xs text-slate-300 mono">${new Date(log.timestamp).toLocaleDateString('de-DE')}</p>
+        `;
+        elements.galleryList.appendChild(wrapper);
+      });
+    }
+
+    async function persistData() {
+      const response = await window.dwcAPI.saveData(state.data);
+      if (!response.ok) {
+        alert(response.error);
+      }
+    }
+
+    setupForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      state.data.setup.startDate = elements.startDate.value;
+      state.data.setup.harvestDays = Number(elements.harvestDays.value) || 56;
+      state.data.setup.plants[0] = {
+        name: elements.plant1Name.value || 'Pflanze 1',
+        bucket: elements.plant1Bucket.value || 'Eimer A',
+        bucketSizeL: Number(elements.plant1BucketSize.value) || 20,
+        strain: elements.plant1Strain.value,
+        breeder: elements.plant1Breeder.value
+      };
+      state.data.setup.plants[1] = {
+        name: elements.plant2Name.value || 'Pflanze 2',
+        bucket: elements.plant2Bucket.value || 'Eimer B',
+        bucketSizeL: Number(elements.plant2BucketSize.value) || 20,
+        strain: elements.plant2Strain.value,
+        breeder: elements.plant2Breeder.value
+      };
+      state.data.setup.thresholds = {
+        phLow: Number(elements.thresholdPhLow.value) || 5.5,
+        phHigh: Number(elements.thresholdPhHigh.value) || 6.5,
+        ecHigh: Number(elements.thresholdEcHigh.value) || 2.4,
+        waterTempHigh: Number(elements.thresholdWaterTempHigh.value) || 22.5
+      };
+      state.data.setup.nutrients = {
+        profileId: elements.nutrientProfile.value,
+        phase: elements.nutrientPhase.value
+      };
+      state.data.setup.light = {
+        startTime: elements.lightStart.value || '06:00',
+        phase: elements.lightPhase.value
+      };
+      await persistData();
+      populatePlantFilter();
+      updateDashboard();
+      updateChart();
+      updateNutrientDoseList();
+    });
+
+    logForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const logId = `log-${Date.now()}`;
+      const selectedRecipeName = elements.recipeSelect.value;
+      const recipe = state.data.recipes.presets.find((preset) => preset.name === selectedRecipeName);
+      const files = Array.from(elements.photoUpload.files || []).map((file) => file.path).filter(Boolean);
+      let photoPaths = [];
+      if (files.length) {
+        const importResult = await window.dwcAPI.importPhotos(state.editingLogId || logId, files);
+        if (!importResult.ok) {
+          alert(importResult.error);
+        } else {
+          photoPaths = importResult.paths;
+        }
+      }
+      const logPayload = {
+        airTemp: elements.airTemp.value ? Number(elements.airTemp.value) : null,
+        humidity: elements.humidity.value ? Number(elements.humidity.value) : null,
+        h2o2Refill: elements.h2o2Refill.checked,
+        notes: elements.notes.value,
+        recipe: recipe ? { ...recipe } : null,
+        photos: photoPaths,
+        plants: [
+          {
+            name: state.data.setup.plants[0]?.name || 'Pflanze 1',
+            ph: elements.p1Ph.value ? Number(elements.p1Ph.value) : null,
+            ec: elements.p1Ec.value ? Number(elements.p1Ec.value) : null,
+            waterTemp: elements.p1WaterTemp.value ? Number(elements.p1WaterTemp.value) : null,
+            rootHealth: elements.p1Root.value
+          },
+          {
+            name: state.data.setup.plants[1]?.name || 'Pflanze 2',
+            ph: elements.p2Ph.value ? Number(elements.p2Ph.value) : null,
+            ec: elements.p2Ec.value ? Number(elements.p2Ec.value) : null,
+            waterTemp: elements.p2WaterTemp.value ? Number(elements.p2WaterTemp.value) : null,
+            rootHealth: elements.p2Root.value
+          }
+        ]
+      };
+
+      if (state.editingLogId) {
+        const index = state.data.logs.findIndex((log) => log.id === state.editingLogId);
+        if (index >= 0) {
+          const existing = state.data.logs[index];
+          state.data.logs[index] = {
+            ...existing,
+            ...logPayload,
+            photos: [...(existing.photos || []), ...photoPaths]
+          };
+        }
+      } else {
+        const newLog = {
+          id: logId,
+          timestamp: new Date().toISOString(),
+          ...logPayload
+        };
+        state.data.logs.unshift(newLog);
+      }
+      state.data.recipes.selected = selectedRecipeName;
+      await persistData();
+      logForm.reset();
+      state.editingLogId = null;
+      elements.logSubmit.textContent = 'Log hinzufügen';
+      updateDashboard();
+      updateChart();
+      updateLogsList();
+      updateGallery();
+      updateTrashList();
+    });
+
+    function updateCalculators() {
+      const volume = Number(elements.h2o2Volume.value);
+      const perLiter = Number(elements.h2o2PerLiter.value);
+      if (!Number.isNaN(volume) && !Number.isNaN(perLiter)) {
+        elements.h2o2Result.value = `${(volume * perLiter).toFixed(1)} ml`;
+      } else {
+        elements.h2o2Result.value = '';
+      }
+
+      const hesiVolume = Number(elements.hesiVolume.value);
+      const growRate = Number(elements.hesiGrow.value);
+      const bloomRate = Number(elements.hesiBloom.value);
+      const boostRate = Number(elements.hesiBoost.value);
+      if (!Number.isNaN(hesiVolume) && !Number.isNaN(growRate)) {
+        elements.hesiGrowResult.value = `${(hesiVolume * growRate).toFixed(1)} ml`;
+      } else {
+        elements.hesiGrowResult.value = '';
+      }
+      if (!Number.isNaN(hesiVolume) && !Number.isNaN(bloomRate) && !Number.isNaN(boostRate)) {
+        elements.hesiBloomResult.value = `${(hesiVolume * bloomRate).toFixed(1)} ml + ${(hesiVolume * boostRate).toFixed(1)} ml`;
+      } else {
+        elements.hesiBloomResult.value = '';
+      }
+    }
+
+    function populateRecipeSelect() {
+      elements.recipeSelect.innerHTML = '';
+      state.data.recipes.presets.forEach((preset) => {
+        const option = document.createElement('option');
+        option.value = preset.name;
+        option.textContent = preset.name;
+        if (preset.name === state.data.recipes.selected) {
+          option.selected = true;
+        }
+        elements.recipeSelect.appendChild(option);
+      });
+      const selected = state.data.recipes.presets.find((preset) => preset.name === state.data.recipes.selected);
+      if (selected) {
+        elements.hesiGrow.value = selected.grow;
+        elements.hesiBloom.value = selected.bloom;
+        elements.hesiBoost.value = selected.boost;
+      }
+      updateRecipeInfo();
+    }
+
+    elements.recipeSelect.addEventListener('change', () => {
+      const selected = state.data.recipes.presets.find((preset) => preset.name === elements.recipeSelect.value);
+      if (selected) {
+        elements.hesiGrow.value = selected.grow;
+        elements.hesiBloom.value = selected.bloom;
+        elements.hesiBoost.value = selected.boost;
+        updateCalculators();
+      }
+      updateRecipeInfo();
+    });
+
+    elements.nutrientProfile.addEventListener('change', () => {
+      state.data.setup.nutrients.profileId = elements.nutrientProfile.value;
+      updateNutrientDoseList();
+      updateChart();
+      persistData();
+    });
+
+    elements.nutrientPhase.addEventListener('change', () => {
+      state.data.setup.nutrients.phase = elements.nutrientPhase.value;
+      updateNutrientDoseList();
+      updateChart();
+      persistData();
+    });
+
+    elements.lightStart.addEventListener('change', () => {
+      state.data.setup.light.startTime = elements.lightStart.value;
+      updateLightTracker();
+      persistData();
+    });
+
+    elements.lightPhase.addEventListener('change', () => {
+      state.data.setup.light.phase = elements.lightPhase.value;
+      updateLightTracker();
+      persistData();
+    });
+
+    [
+      elements.h2o2Volume,
+      elements.h2o2PerLiter,
+      elements.hesiVolume,
+      elements.hesiGrow,
+      elements.hesiBloom,
+      elements.hesiBoost
+    ].forEach((input) => {
+      input.addEventListener('input', updateCalculators);
+    });
+
+    elements.logList.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const logId = button.dataset.id;
+      const action = button.dataset.action;
+      const log = state.data.logs.find((entry) => entry.id === logId);
+      if (!log) return;
+      if (action === 'delete') {
+        const confirmDelete = confirm('Diesen Log wirklich löschen?');
+        if (!confirmDelete) return;
+        log.deletedAt = new Date().toISOString();
+        persistData();
+        updateDashboard();
+        updateChart();
+        updateLogsList();
+        updateGallery();
+        updateTrashList();
+        return;
+      }
+      if (action === 'edit') {
+        state.editingLogId = logId;
+        elements.p1Ph.value = log.plants[0]?.ph ?? '';
+        elements.p1Ec.value = log.plants[0]?.ec ?? '';
+        elements.p1WaterTemp.value = log.plants[0]?.waterTemp ?? '';
+        elements.p1Root.value = log.plants[0]?.rootHealth ?? 'Good';
+        elements.p2Ph.value = log.plants[1]?.ph ?? '';
+        elements.p2Ec.value = log.plants[1]?.ec ?? '';
+        elements.p2WaterTemp.value = log.plants[1]?.waterTemp ?? '';
+        elements.p2Root.value = log.plants[1]?.rootHealth ?? 'Good';
+        elements.airTemp.value = log.airTemp ?? '';
+        elements.humidity.value = log.humidity ?? '';
+        elements.h2o2Refill.checked = Boolean(log.h2o2Refill);
+        elements.notes.value = log.notes ?? '';
+        if (log.recipe?.name) {
+          elements.recipeSelect.value = log.recipe.name;
+        }
+        updateRecipeInfo();
+        elements.logSubmit.textContent = 'Log aktualisieren';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
+    elements.trashList.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const logId = button.dataset.id;
+      const action = button.dataset.action;
+      const log = state.data.logs.find((entry) => entry.id === logId);
+      if (!log) return;
+      if (action === 'restore') {
+        log.deletedAt = null;
+        persistData();
+        updateLogsList();
+        updateGallery();
+        updateTrashList();
+        return;
+      }
+      if (action === 'purge') {
+        const confirmDelete = confirm('Log endgültig löschen?');
+        if (!confirmDelete) return;
+        state.data.logs = state.data.logs.filter((entry) => entry.id !== logId);
+        persistData();
+        updateLogsList();
+        updateGallery();
+        updateTrashList();
+      }
+    });
+
+    elements.exportJson.addEventListener('click', async () => {
+      const result = await window.dwcAPI.exportData(state.data, 'json');
+      if (!result.ok) {
+        alert(result.error);
+      } else {
+        alert(`Export gespeichert: ${result.path}`);
+      }
+    });
+
+    elements.logSearch.addEventListener('input', () => {
+      updateLogsList();
+    });
+
+    elements.logPlantFilter.addEventListener('change', () => {
+      updateLogsList();
+    });
+
+    elements.showTrash.addEventListener('change', () => {
+      updateTrashList();
+    });
+
+    elements.exportCsv.addEventListener('click', async () => {
+      const result = await window.dwcAPI.exportData(state.data, 'csv');
+      if (!result.ok) {
+        alert(result.error);
+      } else {
+        alert(`Export gespeichert: ${result.path}`);
+      }
+    });
+
+    elements.backupNow.addEventListener('click', async () => {
+      const result = await window.dwcAPI.exportData(state.data, 'json');
+      if (!result.ok) {
+        alert(result.error);
+      } else {
+        alert(`Backup erstellt: ${result.path}`);
+      }
+    });
+
+    function setActiveTab(tab) {
+      if (tab === 'history') {
+        elements.dashboardTab.classList.add('hidden');
+        elements.historyTab.classList.remove('hidden');
+        elements.tabDashboard.classList.remove('btn-primary');
+        elements.tabDashboard.classList.add('btn-secondary');
+        elements.tabHistory.classList.remove('btn-secondary');
+        elements.tabHistory.classList.add('btn-primary');
+      } else {
+        elements.dashboardTab.classList.remove('hidden');
+        elements.historyTab.classList.add('hidden');
+        elements.tabDashboard.classList.remove('btn-secondary');
+        elements.tabDashboard.classList.add('btn-primary');
+        elements.tabHistory.classList.remove('btn-primary');
+        elements.tabHistory.classList.add('btn-secondary');
+      }
+    }
+
+    elements.tabDashboard.addEventListener('click', () => setActiveTab('dashboard'));
+    elements.tabHistory.addEventListener('click', () => setActiveTab('history'));
+
+    async function init() {
+      const response = await window.dwcAPI.loadData();
+      if (!response.ok) {
+        alert(response.error);
+        state.data = normalizeData({});
+      } else {
+        state.data = normalizeData(response.data);
+        if (response.info) {
+          console.info(response.info);
+        }
+      }
+      const nutrientResponse = await window.dwcAPI.loadNutrients();
+      if (nutrientResponse.ok) {
+        state.nutrients = nutrientResponse.data;
+      } else {
+        console.warn(nutrientResponse.error);
+      }
+
+      updateSetupFields();
+      populatePlantFilter();
+      populateNutrientProfiles();
+      populateRecipeSelect();
+      updateDashboard();
+      updateChart();
+      updateLogsList();
+      updateGallery();
+      updateTrashList();
+      updateCalculators();
+      updateNutrientDoseList();
+      updateLightTracker();
+      if (state.lightTimer) {
+        clearInterval(state.lightTimer);
+      }
+      state.lightTimer = setInterval(updateLightTracker, 60 * 1000);
+      setActiveTab('dashboard');
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+{
+  "profiles": [
+    {
+      "id": "hesi-hydro",
+      "name": "HESI Hydro",
+      "targets": {
+        "veg": 1.2,
+        "bloom": 1.8
+      },
+      "dosesPer10L": {
+        "veg": {
+          "Hydro Wuchs": 50
+        },
+        "bloom": {
+          "Hydro Blüte": 50,
+          "PK 13/14": 15
+        }
+      }
+    },
+    {
+      "id": "canna-aqua",
+      "name": "CANNA Aqua",
+      "targets": {
+        "veg": 1.3,
+        "bloom": 1.9
+      },
+      "dosesPer10L": {
+        "veg": {
+          "A+B Vega": 20
+        },
+        "bloom": {
+          "A+B Flores": 35
+        }
+      }
+    },
+    {
+      "id": "ta-tripart",
+      "name": "T.A. TriPart",
+      "targets": {
+        "veg": 1.1,
+        "bloom": 1.7
+      },
+      "dosesPer10L": {
+        "veg": {
+          "Grow": 10,
+          "Micro": 10,
+          "Bloom": 10
+        },
+        "bloom": {
+          "Grow": 6,
+          "Micro": 8,
+          "Bloom": 12
+        }
+      }
+    },
+    {
+      "id": "plagron-hydro",
+      "name": "Plagron Hydro",
+      "targets": {
+        "veg": 1.2,
+        "bloom": 1.8
+      },
+      "dosesPer10L": {
+        "veg": {
+          "A+B": 16
+        },
+        "bloom": {
+          "A+B": 25
+        }
+      }
+    }
+  ]
+}
