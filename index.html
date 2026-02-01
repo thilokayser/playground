@@ -110,7 +110,12 @@
       </div>
     </header>
 
-    <section class="mt-10 grid lg:grid-cols-2 gap-6">
+    <nav class="mt-8 flex flex-wrap gap-3">
+      <button id="tabDashboard" class="rounded-lg px-4 py-2 uppercase tracking-[0.2em] text-xs btn-primary">Dashboard</button>
+      <button id="tabHistory" class="rounded-lg px-4 py-2 uppercase tracking-[0.2em] text-xs btn-secondary">History & Galerie</button>
+    </nav>
+
+    <section id="dashboardTab" class="mt-10 grid lg:grid-cols-2 gap-6">
       <div class="glass rounded-2xl p-6 glow-cyan">
         <h2 class="text-xl font-semibold accent-gold">Setup</h2>
         <p class="text-sm text-slate-300">Startdatum, Pflanzen und Ernteplanung.</p>
@@ -128,26 +133,46 @@
           <div class="grid md:grid-cols-2 gap-4">
             <div class="glass rounded-xl p-4">
               <h3 class="text-sm font-semibold accent-cyan">Pflanze 1</h3>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Name</label>
               <input id="plant1Name" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Name" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Eimer</label>
               <input id="plant1Bucket" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Eimer" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Strain</label>
               <input id="plant1Strain" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Strain" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Breeder</label>
               <input id="plant1Breeder" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Breeder" />
             </div>
             <div class="glass rounded-xl p-4">
               <h3 class="text-sm font-semibold accent-cyan">Pflanze 2</h3>
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Name</label>
               <input id="plant2Name" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Name" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Eimer</label>
               <input id="plant2Bucket" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Eimer" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Strain</label>
               <input id="plant2Strain" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Strain" />
+              <label class="text-xs uppercase tracking-[0.2em] text-slate-300 mt-3 block">Breeder</label>
               <input id="plant2Breeder" type="text" class="mt-2 w-full rounded-lg px-3 py-2" placeholder="Breeder" />
             </div>
           </div>
           <div class="glass rounded-xl p-4">
             <h3 class="text-sm font-semibold accent-gold">Alarm-Schwellen</h3>
             <div class="grid md:grid-cols-4 gap-3 mt-3">
-              <input id="thresholdPhLow" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="pH min" />
-              <input id="thresholdPhHigh" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="pH max" />
-              <input id="thresholdEcHigh" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="EC max" />
-              <input id="thresholdWaterTempHigh" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Wassertemp max" />
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">pH min</label>
+                <input id="thresholdPhLow" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="pH min" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">pH max</label>
+                <input id="thresholdPhHigh" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="pH max" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">EC max</label>
+                <input id="thresholdEcHigh" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="EC max" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Wassertemp max</label>
+                <input id="thresholdWaterTempHigh" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Wassertemp max" />
+              </div>
             </div>
           </div>
           <button type="submit" class="mt-2 w-full rounded-lg py-2 uppercase tracking-[0.2em] text-xs btn-primary">Setup speichern</button>
@@ -162,9 +187,18 @@
             <div class="glass rounded-xl p-4">
               <h3 class="text-sm font-semibold accent-cyan">Pflanze 1</h3>
               <div class="grid grid-cols-3 gap-3 mt-2">
-                <input id="p1Ph" type="number" step="0.01" placeholder="pH" class="rounded-lg px-3 py-2 mono" />
-                <input id="p1Ec" type="number" step="0.01" placeholder="EC" class="rounded-lg px-3 py-2 mono" />
-                <input id="p1WaterTemp" type="number" step="0.1" placeholder="Wassertemp" class="rounded-lg px-3 py-2 mono" />
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">pH</label>
+                  <input id="p1Ph" type="number" step="0.01" placeholder="pH" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">EC</label>
+                  <input id="p1Ec" type="number" step="0.01" placeholder="EC" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Wassertemp</label>
+                  <input id="p1WaterTemp" type="number" step="0.1" placeholder="Wassertemp" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
               </div>
               <select id="p1Root" class="mt-3 w-full rounded-lg px-3 py-2">
                 <option value="Good">Root Health: Good</option>
@@ -175,9 +209,18 @@
             <div class="glass rounded-xl p-4">
               <h3 class="text-sm font-semibold accent-cyan">Pflanze 2</h3>
               <div class="grid grid-cols-3 gap-3 mt-2">
-                <input id="p2Ph" type="number" step="0.01" placeholder="pH" class="rounded-lg px-3 py-2 mono" />
-                <input id="p2Ec" type="number" step="0.01" placeholder="EC" class="rounded-lg px-3 py-2 mono" />
-                <input id="p2WaterTemp" type="number" step="0.1" placeholder="Wassertemp" class="rounded-lg px-3 py-2 mono" />
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">pH</label>
+                  <input id="p2Ph" type="number" step="0.01" placeholder="pH" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">EC</label>
+                  <input id="p2Ec" type="number" step="0.01" placeholder="EC" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
+                <div>
+                  <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Wassertemp</label>
+                  <input id="p2WaterTemp" type="number" step="0.1" placeholder="Wassertemp" class="mt-2 w-full rounded-lg px-3 py-2 mono" />
+                </div>
               </div>
               <select id="p2Root" class="mt-3 w-full rounded-lg px-3 py-2">
                 <option value="Good">Root Health: Good</option>
@@ -221,7 +264,7 @@
             <span id="recipeInfo" class="pill px-3 py-2 rounded-full text-xs mono">Profil: --</span>
             <span id="driftTag" class="pill px-3 py-2 rounded-full text-xs mono">Drift: --</span>
           </div>
-          <button type="submit" class="mt-2 w-full rounded-lg py-2 uppercase tracking-[0.2em] text-xs btn-secondary">Log hinzufügen</button>
+          <button id="logSubmit" type="submit" class="mt-2 w-full rounded-lg py-2 uppercase tracking-[0.2em] text-xs btn-secondary">Log hinzufügen</button>
         </form>
       </div>
     </section>
@@ -278,29 +321,149 @@
           <div class="glass rounded-xl p-4">
             <h3 class="text-sm font-semibold accent-cyan">H2O2 Dosierung</h3>
             <div class="grid grid-cols-3 gap-3 mt-3">
-              <input id="h2o2Volume" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Volumen (L)" />
-              <input id="h2o2PerLiter" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="ml/L" value="2" />
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Volumen (L)</label>
+                <input id="h2o2Volume" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Volumen (L)" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">ml/L</label>
+                <input id="h2o2PerLiter" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="ml/L" value="2" />
+              </div>
               <input id="h2o2Result" type="text" class="rounded-lg px-3 py-2 mono" placeholder="Gesamt ml" readonly />
             </div>
           </div>
           <div class="glass rounded-xl p-4">
             <h3 class="text-sm font-semibold accent-cyan">Hesi Dünger</h3>
             <div class="grid grid-cols-3 gap-3 mt-3">
-              <input id="hesiVolume" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Volumen (L)" />
-              <input id="hesiGrow" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Grow ml/L" value="2.5" />
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Volumen (L)</label>
+                <input id="hesiVolume" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Volumen (L)" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Grow ml/L</label>
+                <input id="hesiGrow" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Grow ml/L" value="2.5" />
+              </div>
               <input id="hesiGrowResult" type="text" class="rounded-lg px-3 py-2 mono" placeholder="Grow Gesamt" readonly />
             </div>
             <div class="grid grid-cols-3 gap-3 mt-3">
-              <input id="hesiBloom" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Bloom ml/L" value="5" />
-              <input id="hesiBoost" type="number" step="0.1" class="rounded-lg px-3 py-2 mono" placeholder="Boost ml/L" value="1" />
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Bloom ml/L</label>
+                <input id="hesiBloom" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Bloom ml/L" value="5" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-slate-300">Boost ml/L</label>
+                <input id="hesiBoost" type="number" step="0.1" class="mt-2 w-full rounded-lg px-3 py-2 mono" placeholder="Boost ml/L" value="1" />
+              </div>
               <input id="hesiBloomResult" type="text" class="rounded-lg px-3 py-2 mono" placeholder="Bloom/Boost Gesamt" readonly />
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="text-sm font-semibold accent-cyan">HESI Hydro Guide</h3>
+            <p class="text-xs text-slate-300 mt-2">Für DWC 75–80% der Max-Dosierung nutzen. Alle Werte pro 10L Wasser.</p>
+            <div class="mt-4 overflow-x-auto">
+              <table class="w-full text-xs text-slate-200">
+                <thead class="text-slate-300">
+                  <tr>
+                    <th class="text-left py-2">Phase</th>
+                    <th class="text-left py-2">Woche</th>
+                    <th class="text-left py-2">Hydro Wuchs/Blüte</th>
+                    <th class="text-left py-2">Wurzel Complex</th>
+                    <th class="text-left py-2">SuperVit</th>
+                    <th class="text-left py-2">PowerZyme</th>
+                    <th class="text-left py-2">PK 13/14</th>
+                    <th class="text-left py-2">Hesi Boost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="py-2">Wuchs</td>
+                    <td class="py-2">1 (Keim)</td>
+                    <td class="py-2">25 ml (Wuchs)</td>
+                    <td class="py-2">50 ml</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Wuchs</td>
+                    <td class="py-2">2</td>
+                    <td class="py-2">50 ml (Wuchs)</td>
+                    <td class="py-2">50 ml</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">1 + 2</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">25 ml</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">3 + 4</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">2,5 ml</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">5</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">5,0 ml</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">6</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">7,5 ml</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Blüte</td>
+                    <td class="py-2">7</td>
+                    <td class="py-2">50 ml (Blüte)</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">2 Tropfen</td>
+                    <td class="py-2">20 ml</td>
+                    <td class="py-2">15,0 ml</td>
+                    <td class="py-2">20 ml</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2">Ernte</td>
+                    <td class="py-2">8</td>
+                    <td class="py-2">Nur Wasser</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                    <td class="py-2">-</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="mt-10">
+    <section id="historyTab" class="mt-10 hidden">
       <div class="glass rounded-2xl p-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <h2 class="text-xl font-semibold accent-gold">History & Galerie</h2>
@@ -327,10 +490,15 @@
   <script>
     const state = {
       data: null,
-      chart: null
+      chart: null,
+      editingLogId: null
     };
 
     const elements = {
+      tabDashboard: document.getElementById('tabDashboard'),
+      tabHistory: document.getElementById('tabHistory'),
+      dashboardTab: document.getElementById('dashboardTab'),
+      historyTab: document.getElementById('historyTab'),
       startDate: document.getElementById('startDate'),
       harvestDays: document.getElementById('harvestDays'),
       plant1Name: document.getElementById('plant1Name'),
@@ -375,6 +543,7 @@
       exportJson: document.getElementById('exportJson'),
       exportCsv: document.getElementById('exportCsv'),
       backupNow: document.getElementById('backupNow'),
+      logSubmit: document.getElementById('logSubmit'),
       h2o2Volume: document.getElementById('h2o2Volume'),
       h2o2PerLiter: document.getElementById('h2o2PerLiter'),
       h2o2Result: document.getElementById('h2o2Result'),
@@ -436,8 +605,9 @@
           { name: 'Heavy Feed', grow: 3, bloom: 6, boost: 1.5 }
         ]
       };
-      normalized.logs = (normalized.logs || []).map((log) => ({
+      normalized.logs = (normalized.logs || []).map((log, index) => ({
         ...log,
+        id: log.id || `log-${new Date(log.timestamp || Date.now()).getTime()}-${index}`,
         photos: log.photos || [],
         recipe: log.recipe || null,
         plants: (log.plants || []).map((plant) => ({
@@ -718,6 +888,10 @@
             </div>
           </div>
           <p class="text-xs text-slate-400">Luft ${log.airTemp ?? '--'}°C · RLF ${log.humidity ?? '--'}% · Fotos: ${photoCount} · Notiz: ${log.notes || '—'}</p>
+          <div class="flex flex-wrap gap-2">
+            <button data-action="edit" data-id="${log.id}" class="rounded-lg px-3 py-1 text-xs uppercase tracking-[0.2em] btn-primary">Bearbeiten</button>
+            <button data-action="delete" data-id="${log.id}" class="rounded-lg px-3 py-1 text-xs uppercase tracking-[0.2em] btn-secondary">Löschen</button>
+          </div>
         `;
         elements.logList.appendChild(card);
       });
@@ -788,16 +962,14 @@
       const files = Array.from(elements.photoUpload.files || []).map((file) => file.path).filter(Boolean);
       let photoPaths = [];
       if (files.length) {
-        const importResult = await window.dwcAPI.importPhotos(logId, files);
+        const importResult = await window.dwcAPI.importPhotos(state.editingLogId || logId, files);
         if (!importResult.ok) {
           alert(importResult.error);
         } else {
           photoPaths = importResult.paths;
         }
       }
-      const newLog = {
-        id: logId,
-        timestamp: new Date().toISOString(),
+      const logPayload = {
         airTemp: elements.airTemp.value ? Number(elements.airTemp.value) : null,
         humidity: elements.humidity.value ? Number(elements.humidity.value) : null,
         h2o2Refill: elements.h2o2Refill.checked,
@@ -822,10 +994,29 @@
         ]
       };
 
-      state.data.logs.unshift(newLog);
+      if (state.editingLogId) {
+        const index = state.data.logs.findIndex((log) => log.id === state.editingLogId);
+        if (index >= 0) {
+          const existing = state.data.logs[index];
+          state.data.logs[index] = {
+            ...existing,
+            ...logPayload,
+            photos: [...(existing.photos || []), ...photoPaths]
+          };
+        }
+      } else {
+        const newLog = {
+          id: logId,
+          timestamp: new Date().toISOString(),
+          ...logPayload
+        };
+        state.data.logs.unshift(newLog);
+      }
       state.data.recipes.selected = selectedRecipeName;
       await persistData();
       logForm.reset();
+      state.editingLogId = null;
+      elements.logSubmit.textContent = 'Log hinzufügen';
       updateDashboard();
       updateChart();
       updateLogsList();
@@ -899,6 +1090,47 @@
       input.addEventListener('input', updateCalculators);
     });
 
+    elements.logList.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const logId = button.dataset.id;
+      const action = button.dataset.action;
+      const log = state.data.logs.find((entry) => entry.id === logId);
+      if (!log) return;
+      if (action === 'delete') {
+        const confirmDelete = confirm('Diesen Log wirklich löschen?');
+        if (!confirmDelete) return;
+        state.data.logs = state.data.logs.filter((entry) => entry.id !== logId);
+        persistData();
+        updateDashboard();
+        updateChart();
+        updateLogsList();
+        updateGallery();
+        return;
+      }
+      if (action === 'edit') {
+        state.editingLogId = logId;
+        elements.p1Ph.value = log.plants[0]?.ph ?? '';
+        elements.p1Ec.value = log.plants[0]?.ec ?? '';
+        elements.p1WaterTemp.value = log.plants[0]?.waterTemp ?? '';
+        elements.p1Root.value = log.plants[0]?.rootHealth ?? 'Good';
+        elements.p2Ph.value = log.plants[1]?.ph ?? '';
+        elements.p2Ec.value = log.plants[1]?.ec ?? '';
+        elements.p2WaterTemp.value = log.plants[1]?.waterTemp ?? '';
+        elements.p2Root.value = log.plants[1]?.rootHealth ?? 'Good';
+        elements.airTemp.value = log.airTemp ?? '';
+        elements.humidity.value = log.humidity ?? '';
+        elements.h2o2Refill.checked = Boolean(log.h2o2Refill);
+        elements.notes.value = log.notes ?? '';
+        if (log.recipe?.name) {
+          elements.recipeSelect.value = log.recipe.name;
+        }
+        updateRecipeInfo();
+        elements.logSubmit.textContent = 'Log aktualisieren';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
     elements.exportJson.addEventListener('click', async () => {
       const result = await window.dwcAPI.exportData(state.data, 'json');
       if (!result.ok) {
@@ -926,6 +1158,27 @@
       }
     });
 
+    function setActiveTab(tab) {
+      if (tab === 'history') {
+        elements.dashboardTab.classList.add('hidden');
+        elements.historyTab.classList.remove('hidden');
+        elements.tabDashboard.classList.remove('btn-primary');
+        elements.tabDashboard.classList.add('btn-secondary');
+        elements.tabHistory.classList.remove('btn-secondary');
+        elements.tabHistory.classList.add('btn-primary');
+      } else {
+        elements.dashboardTab.classList.remove('hidden');
+        elements.historyTab.classList.add('hidden');
+        elements.tabDashboard.classList.remove('btn-secondary');
+        elements.tabDashboard.classList.add('btn-primary');
+        elements.tabHistory.classList.remove('btn-primary');
+        elements.tabHistory.classList.add('btn-secondary');
+      }
+    }
+
+    elements.tabDashboard.addEventListener('click', () => setActiveTab('dashboard'));
+    elements.tabHistory.addEventListener('click', () => setActiveTab('history'));
+
     async function init() {
       const response = await window.dwcAPI.loadData();
       if (!response.ok) {
@@ -945,6 +1198,7 @@
       updateLogsList();
       updateGallery();
       updateCalculators();
+      setActiveTab('dashboard');
     }
 
     init();
